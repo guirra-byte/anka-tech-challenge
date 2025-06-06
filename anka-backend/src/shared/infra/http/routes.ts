@@ -318,8 +318,9 @@ app.route({
     const { id } = request.params as { id: string };
     const { bodyPayload } = request.body as { bodyPayload: NewClientProps };
 
+    const editData = EditClientSchema.parse(bodyPayload)
+
     try {
-      const editData = EditClientSchema.parse(bodyPayload);
       const existingClient = await prisma.client.findUnique({
         where: { id },
       });
@@ -328,23 +329,25 @@ app.route({
         return reply.status(404).send({ message: "Client not found." });
       }
 
+     const emailInUse = await prisma.client.findUnique({
+          where: { email: editData.email },
+        })
+
       const emailExists =
         editData.email &&
         editData.email !== existingClient.email &&
-        (await prisma.client.findUnique({
-          where: { email: editData.email },
-        }));
+       !emailInUse
 
       if (emailExists) {
         return reply.status(409).send({ message: "E-mail already in use." });
       }
 
       const updatedData = {
-        name: editData.name ?? existingClient.name,
-        email: editData.email ?? existingClient.email,
+        name: bodyPayload.name ?? existingClient.name,
+        email: bodyPayload.email ?? existingClient.email,
         active:
-          typeof editData.active === "boolean"
-            ? editData.active
+          typeof bodyPayload.active === "boolean"
+            ? bodyPayload.active
             : existingClient.active,
       };
 

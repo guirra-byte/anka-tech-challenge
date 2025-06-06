@@ -16,6 +16,11 @@
       "static/chunks/main-app.js",
       "static/chunks/app/clients/page.js"
     ],
+    "/api/assets/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/assets/route.js"
+    ],
     "/api/dashboard/metrics/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -26,15 +31,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/clients/page/route.js"
     ],
+    "/api/clients/upload/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/clients/upload/route.js"
+    ],
     "/assets/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/assets/page.js"
-    ],
-    "/api/assets/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/assets/route.js"
     ],
     "/api/clients/route": [
       "static/chunks/webpack.js",

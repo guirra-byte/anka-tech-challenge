@@ -5,9 +5,7 @@ Este repositório contém uma aplicação fullstack desenvolvida como parte do d
 ## 🧪 Demonstração
 
 Abaixo, uma prévia da aplicação em funcionamento:
-
-
-https://github.com/user-attachments/assets/f20d1529-53c3-4d83-a836-bcfc6d35752a
+👉 [Assista ao vídeo de demonstração](./assets/Gravando%202025-06-06%20145922.mp4)
 
 
 
