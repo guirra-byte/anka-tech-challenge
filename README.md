@@ -8,7 +8,6 @@ Abaixo, uma prévia da aplicação em funcionamento:
 👉 [Assista ao vídeo de demonstração](./assets/Gravando%202025-06-06%20145922.mp4)
 
 
-
 ## 📁 Estrutura do Projeto
 anka-tech-challenge/ <br>
 ├── frontend/ # Interface do usuário (Next.Js) <br>
