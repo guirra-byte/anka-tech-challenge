@@ -5,6 +5,9 @@ Este repositório contém uma aplicação fullstack desenvolvida como parte do d
 ## Demonstração
 
 Abaixo, uma prévia da aplicação em funcionamento:
+- Vídeo de Demonstração: https://drive.google.com/file/d/1HUmXKe6b5-a0Qc77NeW5LpyQNfaaOyvh/view?usp=sharing
+<hr/> 
+
 ![image](https://github.com/user-attachments/assets/8e68c2fa-5284-4bab-85cd-43acd74b62ca)
 
 ![image](https://github.com/user-attachments/assets/f52f3726-43e3-4a6c-a06a-d6d409af60b8)
