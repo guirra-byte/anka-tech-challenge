@@ -1,0 +1,16 @@
+# node_modules em qualquer lugar
+**/node_modules/
+
+# build/output
+**/dist/
+**/build/
+
+# envs
+**/.env
+
+# logs
+*.log
+
+# sistema
+.DS_Store
+Thumbs.db

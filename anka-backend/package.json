@@ -1,0 +1,30 @@
+{
+  "name": "anka-backend",
+  "version": "1.0.0",
+  "description": "A robust, scalable backend API built with Node.js + TypeScript + Fastify  to manage clients and their financial assets for an investment office.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --experimental-strip-types --watch --no-warnings src/server.ts",
+    "start": "node --experimental-strip-types --no-warnings src/server.ts"
+  },
+  "author": "guirra-byte",
+  "license": "ISC",
+  "devDependencies": {
+    "@tsconfig/node22": "^22.0.2",
+    "@types/node": "^22.15.29",
+    "@types/redis": "^4.0.10",
+    "prisma": "^6.8.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@fastify/multipart": "^9.0.3",
+    "@fastify/rate-limit": "^10.3.0",
+    "@prisma/client": "^6.8.2",
+    "csv-parser": "^3.2.0",
+    "fastify": "^5.3.3",
+    "ioredis": "^5.6.1",
+    "zod": "^3.25.48"
+  }
+}

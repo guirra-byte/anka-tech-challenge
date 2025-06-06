@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id       String  @id @default(nanoid())
+  name     String
+  email    String  @unique
+  active   Boolean @default(false)
+  imported Boolean @default(false)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Allocation Allocation[]
+
+  @@map("clients")
+}
+
+model Asset {
+  id         String       @id @default(nanoid())
+  name       String       @unique
+  Allocation Allocation[]
+
+  @@map("assets")
+}
+
+model Allocation {
+  id            Int    @id @default(autoincrement())
+  clientId      String @map("client_id")
+  assetId       String @map("asset_id")
+  investedValue String @map("invested_value")
+  at            String
+
+  Client Client @relation(fields: [clientId], references: [id])
+  Asset  Asset  @relation(fields: [assetId], references: [id])
+
+  @@map("allocations")
+}
