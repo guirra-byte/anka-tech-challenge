@@ -114,3 +114,10 @@ Durante a importação, cada linha do arquivo é processada dentro de uma **tran
 
 Este processo garante que os dados financeiros importados sejam atualizados corretamente, facilitando o gerenciamento dos investimentos por cliente.
 
+<hr/>
+
+🚀 Projeto desenvolvido com dedicação e 🧡.
+
+✨ Com esperança de, em breve, poder contribuir profissionalmente com o time da [Anka](https://ankatech.com.br).
+
+📬 Entre em contato: guirramatheus1@gmail.com | https://www.linkedin.com/in/matheus-guirra/ | 61992839756
