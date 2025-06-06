@@ -2,10 +2,15 @@
 
 Este repositório contém uma aplicação fullstack desenvolvida como parte do desafio técnico para a Anka. O projeto é dividido em duas partes principais: **frontend** e **backend**, organizadas dentro do mesmo monorepositório.
 
-## 🧪 Demonstração
+## Demonstração
 
 Abaixo, uma prévia da aplicação em funcionamento:
-👉 [Assista ao vídeo de demonstração](./assets/Gravando%202025-06-06%20145922.mp4)
+![image](https://github.com/user-attachments/assets/8e68c2fa-5284-4bab-85cd-43acd74b62ca)
+
+![image](https://github.com/user-attachments/assets/f52f3726-43e3-4a6c-a06a-d6d409af60b8)
+
+![image](https://github.com/user-attachments/assets/fe21c2b2-d1ac-4261-aeae-220fa56ce23e)
+
 
 
 ## 📁 Estrutura do Projeto
