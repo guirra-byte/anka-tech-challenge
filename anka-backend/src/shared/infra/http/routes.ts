@@ -4,8 +4,10 @@ import { pipeline } from "node:stream";
 import { promisify } from "node:util";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import csv from "csv-parser";
+
 import { fastifyMultipart } from "@fastify/multipart";
 import rateLimit from "@fastify/rate-limit";
+import fastifyCors from "@fastify/cors";
 
 import { lookupCache } from "../middleware/lookup-cache.ts";
 import { invalidateCachePrefix } from "../../utils/invalidate-cache.ts";
@@ -38,7 +40,78 @@ app.register(rateLimit, {
   },
 });
 
+await app.register(fastifyCors, {
+  origin: "http://localhost:3000",
+  credentials: true,
+  methods: ["GET"],
+});
+
 const pump = promisify(pipeline);
+const processRows = async (rows: CsvRowAllocationAssertion[]) => {
+  const groupedRows = new Map<string, CsvRowAllocationAssertion[]>();
+
+  for (const row of rows) {
+    const email = row.email;
+    if (!groupedRows.has(email)) {
+      groupedRows.set(email, []);
+    }
+
+    groupedRows.get(email)!.push(row);
+  }
+
+  for (const [email, emailRows] of groupedRows.entries()) {
+    for (const row of emailRows) {
+      try {
+        await prisma.$transaction(async (tx) => {
+          let asset = await tx.asset.findUnique({
+            where: { name: row.asset.name },
+          });
+
+          if (!asset) {
+            asset = await tx.asset.create({
+              data: {
+                name: row.asset.name,
+              },
+            });
+          }
+
+          let client = await tx.client.findUnique({
+            where: { email },
+          });
+
+          if (!client) {
+            client = await tx.client.create({
+              data: {
+                email,
+                name: row.name,
+                active: row.active,
+                imported: true,
+              },
+            });
+          }
+
+          await tx.allocation.create({
+            data: {
+              clientId: client.id,
+              assetId: asset.id,
+              investedValue: row.invested_value,
+              at: row.at,
+            },
+          });
+        });
+      } catch (err: any) {
+        if (err.code === "P2002") {
+          console.warn(
+            `Cliente com email ${row.email} já criado por outra transação.`
+          );
+        } else {
+          console.error("Erro ao processar linha:", err);
+        }
+      }
+    }
+  }
+};
+
 app.route({
   method: "POST",
   url: "/api/clients/upload",
@@ -54,75 +127,11 @@ app.route({
       .status(200)
       .send({ message: "Uploaded file was received. Process was initiated." });
 
-    const processRows = async (rows: CsvRowAllocationAssertion[]) => {
-      const groupedRows = new Map<string, CsvRowAllocationAssertion[]>();
-
-      for (const row of rows) {
-        const email = row.email;
-        if (!groupedRows.has(email)) {
-          groupedRows.set(email, []);
-        }
-
-        groupedRows.get(email)!.push(row);
-      }
-
-      for (const [email, emailRows] of groupedRows.entries()) {
-        for (const row of emailRows) {
-          try {
-            await prisma.$transaction(async (tx) => {
-              let asset = await tx.asset.findUnique({
-                where: { name: row.asset.name },
-              });
-
-              if (!asset) {
-                asset = await tx.asset.create({
-                  data: {
-                    name: row.asset.name,
-                  },
-                });
-              }
-
-              let client = await tx.client.findUnique({
-                where: { email },
-              });
-
-              if (!client) {
-                client = await tx.client.create({
-                  data: {
-                    email,
-                    name: row.name,
-                    active: row.active,
-                    imported: true,
-                  },
-                });
-              }
-
-              await tx.allocation.create({
-                data: {
-                  clientId: client.id,
-                  assetId: asset.id,
-                  investedValue: row.invested_value,
-                  at: row.at,
-                },
-              });
-            });
-          } catch (err: any) {
-            if (err.code === "P2002") {
-              console.warn(
-                `Cliente com email ${row.email} já criado por outra transação.`
-              );
-            } else {
-              console.error("Erro ao processar linha:", err);
-            }
-          }
-        }
-      }
-    };
-
     try {
       let batchSize = 200;
       let batchRows: CsvRowAllocationAssertion[] = [];
 
+      const clientIp = request.ip;
       await pump(data.file.pipe(csv()), async function* (source) {
         for await (const row of source) {
           const rowAssertion = row as CsvDataDTO;
@@ -149,10 +158,60 @@ app.route({
         if (batchRows.length > 0) {
           await processRows(batchRows);
         }
-      });
+      }).then(async () => await notifyClients(sseAppClients, clientIp));
     } catch (error) {
       console.error("[UPLOAD_CSV] - Error:", error);
     }
+  },
+});
+
+const sseAppClients: Record<string, FastifyReply[]> = {};
+async function notifyClients(
+  clients: Record<string, FastifyReply[]>,
+  ip: string
+) {
+  if (clients[ip]) {
+    clients[ip].map((client) => {
+      client.raw.write(`data: [UPLOAD_CSV] - Success\n\n`);
+    });
+  }
+}
+
+app.route({
+  method: "GET",
+  url: "/api/clients/upload/events",
+  handler: async (request: FastifyRequest, reply: FastifyReply) => {
+    const clientIp = request.ip;
+    console.log("[SSE_CLIENT] - Connection Stablished");
+
+    const corsHeaders: { key: string; value: string }[] = [
+      { key: "Access-Control-Allow-Origin", value: "http://localhost:3000" },
+      { key: "Access-Control-Allow-Methods", value: "GET" },
+    ];
+
+    const sseHeaders: { key: string; value: string }[] = [
+      { key: "Content-Type", value: "text/event-stream" },
+      { key: "Cache-Control", value: "no-cache" },
+      { key: "Connection", value: "keep-alive" },
+    ];
+
+    const rawHeaders = [...corsHeaders, ...sseHeaders];
+    rawHeaders.map((header) => {
+      reply.raw.setHeader(header.key, header.value);
+    });
+
+    sseAppClients[`${clientIp}`] = [reply];
+    request.raw.on("close", () => {
+      const position = sseAppClients[`${clientIp}`].indexOf(reply);
+      if (position !== -1) {
+        sseAppClients[`${clientIp}`].splice(position, 1);
+        console.log("[SSE_CLIENT] -- Connection Closed");
+      }
+    });
+
+    reply.raw.write(
+      `data: Connection with SSE Client has been stablished!\n\n`
+    );
   },
 });
 
@@ -318,7 +377,7 @@ app.route({
     const { id } = request.params as { id: string };
     const { bodyPayload } = request.body as { bodyPayload: NewClientProps };
 
-    const editData = EditClientSchema.parse(bodyPayload)
+    const editData = EditClientSchema.parse(bodyPayload);
 
     try {
       const existingClient = await prisma.client.findUnique({
@@ -329,14 +388,14 @@ app.route({
         return reply.status(404).send({ message: "Client not found." });
       }
 
-     const emailInUse = await prisma.client.findUnique({
-          where: { email: editData.email },
-        })
+      const emailInUse = await prisma.client.findUnique({
+        where: { email: editData.email },
+      });
 
       const emailExists =
         editData.email &&
         editData.email !== existingClient.email &&
-       !emailInUse
+        !emailInUse;
 
       if (emailExists) {
         return reply.status(409).send({ message: "E-mail already in use." });
