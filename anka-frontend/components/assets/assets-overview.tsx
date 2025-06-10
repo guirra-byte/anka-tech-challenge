@@ -1,6 +1,6 @@
 "use client";
 
-import { useAssets } from "@/hooks/useAssets";
+import { useAssets } from "@/hooks/use-assets";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ResponsiveContainer,

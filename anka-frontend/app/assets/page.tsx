@@ -2,7 +2,7 @@
 
 import Layout from "@/components/ankaui/layout";
 import BackendStatus from "@/components/ankaui/backend-health";
-import { useAssets } from "@/hooks/useAssets";
+import { useAssets } from "@/hooks/use-assets";
 import { Card, CardContent } from "@/components/ui/card";
 import { Pin } from "lucide-react";
 import {
