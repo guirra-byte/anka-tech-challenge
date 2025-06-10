@@ -2,10 +2,18 @@
 
 Este repositório contém uma aplicação fullstack desenvolvida como parte do desafio técnico para a Anka. O projeto é dividido em duas partes principais: **frontend** e **backend**, organizadas dentro do mesmo monorepositório.
 
-## 🧪 Demonstração
+## Demonstração
 
 Abaixo, uma prévia da aplicação em funcionamento:
-👉 [Assista ao vídeo de demonstração](./assets/Gravando%202025-06-06%20145922.mp4)
+- Vídeo de Demonstração: https://drive.google.com/file/d/1HUmXKe6b5-a0Qc77NeW5LpyQNfaaOyvh/view?usp=sharing
+<hr/> 
+
+![image](https://github.com/user-attachments/assets/8e68c2fa-5284-4bab-85cd-43acd74b62ca)
+
+![image](https://github.com/user-attachments/assets/f52f3726-43e3-4a6c-a06a-d6d409af60b8)
+
+![image](https://github.com/user-attachments/assets/fe21c2b2-d1ac-4261-aeae-220fa56ce23e)
+
 
 
 ## 📁 Estrutura do Projeto
@@ -109,3 +117,10 @@ Durante a importação, cada linha do arquivo é processada dentro de uma **tran
 
 Este processo garante que os dados financeiros importados sejam atualizados corretamente, facilitando o gerenciamento dos investimentos por cliente.
 
+<hr/>
+
+🚀 Projeto desenvolvido com dedicação e 🧡.
+
+✨ Com esperança de, em breve, poder contribuir profissionalmente com o time da [Anka](https://ankatech.com.br).
+
+📬 Entre em contato: guirramatheus1@gmail.com | https://www.linkedin.com/in/matheus-guirra/ | 61992839756
