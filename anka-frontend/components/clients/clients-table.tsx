@@ -16,14 +16,9 @@ import {
   Activity,
   AlertTriangle,
   BarChart2,
-  CheckCircle2,
   Loader2,
   MoreHorizontal,
-  PlusCircle,
   Search,
-  Signature,
-  Trash2,
-  UserCheck,
   UserPlus,
   WalletCards,
   X,
@@ -48,6 +43,7 @@ import ClientAssetList from "./client-asset-list";
 import { format } from "date-fns";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
+import { SSEProvider, useSSE } from "@/hooks/use-sse";
 
 export type Client = {
   id: string;
@@ -72,7 +68,6 @@ export type Client = {
 
 export default function ClientsTable() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
@@ -85,7 +80,6 @@ export default function ClientsTable() {
 
   const [totalPages, setTotalPages] = useState(1);
   const [paginatedClients, setPaginatedClients] = useState<Client[]>([]);
-
   const [dashboardMetrics, setDashboardMetrics] = useState({
     totalClients: 0,
     totalAssets: 0,
@@ -96,9 +90,18 @@ export default function ClientsTable() {
   const [attempts, setAttempts] = useState(0);
   const [retryKey, setRetryKey] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const MAX_ATTEMPTS = 5;
+  const MAX_ATTEMPTS = 3;
 
-  const fetchClientes = async (page = 1) => {
+  const { isFinished } = useSSE();
+  const fetchDashboardMetrics = async () => {
+    const replyDashboard = await fetch("/api/dashboard/metrics");
+    if (replyDashboard.ok) {
+      const metrics = await replyDashboard.json();
+      setDashboardMetrics(metrics);
+    }
+  };
+
+  const fetchClients = async (page = 1) => {
     try {
       const res = await fetch("/api/clients/page", {
         method: "POST",
@@ -120,7 +123,7 @@ export default function ClientsTable() {
   };
 
   const useRetriableFetch = (httpStatus: number, successStatus = 200) => {
-    if (httpStatus === successStatus || attempts >= MAX_ATTEMPTS) return;
+    if (httpStatus === successStatus || attempts > MAX_ATTEMPTS) return;
     const newAttempts = attempts + 1;
     const newDelay = newAttempts * 5;
     setAttempts(newAttempts);
@@ -129,7 +132,6 @@ export default function ClientsTable() {
 
   useEffect(() => {
     if (attempts === 0 || attempts >= MAX_ATTEMPTS) return;
-
     intervalRef.current = setInterval(() => {
       setCounter((prev) => {
         if (prev <= 1) {
@@ -148,18 +150,13 @@ export default function ClientsTable() {
     const fetchAll = async () => {
       setLoading(true);
 
-      const replyDashboard = await fetch("/api/dashboard/metrics");
-      if (replyDashboard.ok) {
-        const metrics = await replyDashboard.json();
-        setDashboardMetrics(metrics);
-      }
-
-      await fetchClientes(currentPage);
+      await fetchClients(currentPage);
+      await fetchDashboardMetrics();
       setLoading(false);
     };
 
     fetchAll();
-  }, [currentPage, retryKey]);
+  }, [currentPage, retryKey, isFinished]);
 
   useEffect(() => {
     if (selectedClient) {
@@ -190,7 +187,7 @@ export default function ClientsTable() {
     if (res.ok || res.status === 201) {
       closeModal();
 
-      await fetchClientes(currentPage);
+      await fetchClients(currentPage);
       const replyDashboard = await fetch("/api/dashboard/metrics");
       if (replyDashboard.ok) {
         const metrics = await replyDashboard.json();
@@ -202,7 +199,6 @@ export default function ClientsTable() {
   };
 
   const openModal = (client: Client, type: "assets" | "edit") => {
-    console.log(client.Allocation);
     setSelectedClient(client);
     setModalType(type);
   };
@@ -222,22 +218,6 @@ export default function ClientsTable() {
       client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.id.includes(searchTerm)
   );
-
-  const toggleSelectAll = (checked: boolean) => {
-    setSelectedRows(checked ? paginatedClients.map((c) => c.id) : []);
-  };
-
-  const toggleRowSelection = (id: string) => {
-    setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
-    );
-  };
-
-  const unselectAllRows = (currentPageClients: string[]) => {
-    setSelectedRows((prev) =>
-      prev.filter((id) => !currentPageClients.includes(id))
-    );
-  };
 
   return (
     <div className="space-y-4">
@@ -359,53 +339,10 @@ export default function ClientsTable() {
       </div>
 
       <div className="rounded-lg border border-gray-200 dark:border-[#1F1F23]">
-        {selectedRows.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-3 border rounded-lg transition-all duration-500 hover:border-gray-300/50 m-2">
-            <div className="flex items-center gap-2">
-              <Badge className="bg-orange-500/10 dark:bg-orange-500/20 hover:bg-orange-500/10 text-orange-500 border-orange-500/60 shadow-none rounded-full">
-                {selectedRows.length} Clientes Selecionados
-              </Badge>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={true}
-                className="h-8 gap-1 text-pink-600 hover:bg-pink-600/10 hover:text-pink-600 hover:border-pink-600/30"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                <span>Deletar</span>
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() =>
-                  unselectAllRows(paginatedClients.map((client) => client.id))
-                }
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Cancelar</span>
-              </Button>
-            </div>
-          </div>
-        )}
-
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                {/* <TableHead>
-                  <Checkbox
-                    className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-500"
-                    checked={paginatedClients.every((c) =>
-                      selectedRows.includes(c.id)
-                    )}
-                    onCheckedChange={(checked) => toggleSelectAll(!!checked)}
-                  />
-                </TableHead> */}
                 <TableHead className="tracking-wider uppercase">Name</TableHead>
                 <TableHead className="tracking-wider uppercase">
                   Email
@@ -428,13 +365,6 @@ export default function ClientsTable() {
                     key={client.id}
                     className="hover:bg-muted/50 h-12 border-b border-dashed"
                   >
-                    {/* <TableCell className="py-1">
-                      <Checkbox
-                        className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-500"
-                        checked={selectedRows.includes(client.id)}
-                        onCheckedChange={() => toggleRowSelection(client.id)}
-                      />
-                    </TableCell> */}
                     <TableCell className="py-1 font-medium whitespace-nowrap px-6">
                       <div>
                         <div className="text-sm font-medium">{client.name}</div>
@@ -444,7 +374,7 @@ export default function ClientsTable() {
                             {client.id}
                           </span>
                           {client.active ? (
-                            <div className="w-2 h-2 bg-emerald-600 rounded-full ml-2"></div>
+                            <div className="w-2 h-2 bg-emerald-600 rounded-full ml-2 animate-pulse"></div>
                           ) : (
                             <div className="w-2 h-2 bg-red-600 rounded-full ml-2"></div>
                           )}

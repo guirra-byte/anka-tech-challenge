@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type React from "react";
 import {
   Dialog,
@@ -14,14 +14,34 @@ import {
 import { Button } from "@/components/ui/button";
 import { Upload, Loader2, Trash2, FileUp, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SSEProvider, useSSE } from "@/hooks/use-sse";
 
 export default function CsvUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [showReplaceWarning, setShowReplaceWarning] = useState(false);
-  const [isOpen, setIsOpen] = useState(false)
+
+  const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { openConnection, isConnected, isFinished, closeConnection } = useSSE();
+  
+  useEffect(() => {
+    if (isFinished) {
+      setIsUploading(false);
+    }
+
+    if (!isOpen) {
+      closeConnection();
+    }
+  }, [isFinished, isOpen]);
+
+  const preHandleUpload = () => {
+    setIsOpen(!isOpen);
+    openConnection();
+    handleUpload();
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -47,10 +67,8 @@ export default function CsvUploader() {
     formData.append("file", file);
     await fetch("/api/clients/upload", { method: "POST", body: formData });
 
-    setIsUploading(false);
     setFile(null);
     setShowReplaceWarning(false);
-    setIsOpen(false)
   };
 
   const handleRemove = () => {
@@ -59,12 +77,12 @@ export default function CsvUploader() {
   };
 
   return (
-    <Dialog open={isOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className="flex items-center gap-2 rounded-lg border"
           variant="default"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => preHandleUpload()}
         >
           <Upload className="h-4 w-4" />
           Importe seus Clientes
@@ -83,6 +101,42 @@ export default function CsvUploader() {
               </DialogHeader>
             </div>
             <div className="flex-grow h-px border border-dashed" />
+          </div>
+
+          {/* Status da Conexão SSE */}
+          <div
+            className="bg-muted/30 px-3 py-2 rounded-lg border flex items-center justify-between backdrop-blur-
+        transition-all duration-300 ease-out"
+          >
+            <div className="flex items-center gap-2">
+              <div
+                className={cn(
+                  "w-2 h-2 rounded-full animate-pulse",
+                  isConnected ? "bg-emerald-600" : "bg-red-600"
+                )}
+              />
+              <span className="text-sm font-medium">Status da Conexão SSE</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "text-xs font-medium",
+                  isConnected
+                    ? "text-emerald-600 dark:text-emerald-500"
+                    : "text-red-600 dark:text-red-500"
+                )}
+              >
+                {isConnected ? "Conectado" : "Desconectado"}
+              </span>
+              {!isConnected && (
+                <button
+                  onClick={openConnection}
+                  className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
+                >
+                  Reconectar
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Dropzone */}
@@ -162,13 +216,13 @@ export default function CsvUploader() {
           </DialogClose>
           <Button
             onClick={handleUpload}
-            disabled={!file || isUploading}
+            disabled={!file || isUploading || !isConnected}
             className="bg-orange-600 text-white hover:bg-orange-400 transition-colors"
           >
             {isUploading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Enviando...
+                Importando...
               </>
             ) : (
               "Importar"
