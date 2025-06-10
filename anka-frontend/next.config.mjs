@@ -9,8 +9,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  reactStrictMode: false
-  // True, ajuda a encontrar erros em defeitos colaterais;
+  reactStrictMode: false,
 }
 
 export default nextConfig
