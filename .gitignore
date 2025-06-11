@@ -4,6 +4,7 @@
 # build/output
 **/dist/
 **/build/
+anka-frontend/.next
 
 # envs
 **/.env
