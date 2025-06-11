@@ -49,7 +49,7 @@ Frontend: http://localhost:3000
 
 Backend: http://localhost:3001
 
-# 🧠 Decisões Técnicos de Interesse
+# 🧠 Decisões Técnicas de Interesse
 ### 👀 Mudança de React Query para Next.js API Routes
 
 Apesar da sugestão inicial de usar React Query, optei por centralizar as requisições usando Next.js API Routes. Essa decisão foi baseada na busca por simplicidade e controle, algo mais adequado para um projeto menor e com requisitos bem específicos.
