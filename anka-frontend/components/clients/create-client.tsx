@@ -37,6 +37,10 @@ export function CreateClient() {
       setName("");
       setEmail("");
       setActive(true);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     }
   };
 
