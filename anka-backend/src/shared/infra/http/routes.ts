@@ -219,24 +219,23 @@ app.route({
   method: "POST",
   url: "/api/client",
   handler: async (request: FastifyRequest, reply: FastifyReply) => {
-    const data = request.body as {
+    const { name, email, active } = request.body as {
       name: string;
       email: string;
       active: boolean;
-      page: number;
     };
 
     const findByEmail = await prisma.client.findUnique({
-      where: { email: data.email },
+      where: { email },
     });
 
     if (findByEmail) {
       return reply.status(409).send({ message: "E-mail already in use." });
     }
 
-    const clientData = CreateClientSchema.parse(data);
+    const clientData = CreateClientSchema.parse({ name, email, active });
     await prisma.client.create({ data: { ...clientData } });
-    await invalidateCachePrefix(`cache:clients:page:${data.page}`);
+    await invalidateCachePrefix(`cache`);
 
     reply.status(201).send();
   },

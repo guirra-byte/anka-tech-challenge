@@ -10,7 +10,7 @@ export async function POST(request: Request) {
 
   try {
     const reply = await axios.post(`http://localhost:3001/api/client`, {
-      data,
+      ...data,
     });
 
     return new Response(JSON.stringify(reply.data), {
