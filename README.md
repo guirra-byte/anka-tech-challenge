@@ -5,15 +5,7 @@ Este repositório contém uma aplicação fullstack desenvolvida como parte do d
 ## Demonstração
 
 Abaixo, uma prévia da aplicação em funcionamento:
-- Vídeo de Demonstração: https://drive.google.com/file/d/1HUmXKe6b5-a0Qc77NeW5LpyQNfaaOyvh/view?usp=sharing
-<hr/> 
-
-![image](https://github.com/user-attachments/assets/8e68c2fa-5284-4bab-85cd-43acd74b62ca)
-
-![image](https://github.com/user-attachments/assets/f52f3726-43e3-4a6c-a06a-d6d409af60b8)
-
-![image](https://github.com/user-attachments/assets/fe21c2b2-d1ac-4261-aeae-220fa56ce23e)
-
+- <a href="https://drive.google.com/file/d/1HUmXKe6b5-a0Qc77NeW5LpyQNfaaOyvh/view?usp=sharing">Vídeo de Demonstração </a>
 
 
 ## 📁 Estrutura do Projeto
@@ -60,22 +52,15 @@ Backend: http://localhost:3001
 # 🧠 Decisões Técnicos de Interesse
 ### 👀 Mudança de React Query para Next.js API Routes
 
-No desafio inicial, o uso do **React Query** foi estimulado para realizar requisições e gerenciar o estado dos dados no frontend. 
-
-No entanto, com liberdade técnica e um olhar crítico sobre a arquitetura, optei por migrar para o uso de **Next.js API Routes**. Essa decisão técnica foi baseada nos seguintes pontos:
-
-- **Segurança aprimorada:** mantemos a lógica e os segredos no backend, protegendo endpoints e dados sensíveis.
-- **Maior controle sobre as chamadas:** centralizamos as requisições no servidor, possibilitando validações, autenticação e tratamento de erros mais robustos.
-- **Melhor organização da aplicação:** a API interna do Next.js funciona como um intermediário, facilitando manutenção e escalabilidade.
-- **Performance otimizada:** reduzimos chamadas diretas externas do cliente e podemos implementar caching e pré-processamento no servidor.
-
-Essa abordagem proporcionou uma solução mais segura, flexível e alinhada às necessidades do projeto, respeitando a proposta original do desafio e aplicando melhorias técnicas relevantes.
+Apesar da sugestão inicial de usar React Query, optei por centralizar as requisições usando Next.js API Routes. Essa decisão foi baseada na busca por simplicidade e controle, algo mais adequado para um projeto menor e com requisitos bem específicos.
+- Com as API Routes, consigo proteger melhor dados sensíveis, validar entradas no backend e organizar a lógica de forma mais clara.
+- Caso a aplicação evoluísse em complexidade, o uso do React Query voltaria a ser considerado para melhorar o gerenciamento de estado e sincronização de dados no frontend.
 
 <hr/>
 
-### 📌 Cache no Backend
+### 📌 Cache no Backend — Cache-Aside Strategy
 
-Para otimizar o tempo de resposta e reduzir processamento desnecessário, o backend utiliza um sistema de **cache por rota**, com as seguintes características:
+Para garantir performance e escalabilidade, esta aplicação adota a estratégia Cache-Aside, uma técnica eficiente onde o cache e a fonte de verdade (banco de dados) são desacoplados, mas sincronizados de forma inteligente.
 
 - **Middleware e preHandler** interceptam as requisições antes da execução da lógica principal.
 - O cache é gerenciado, associando **uma key única a cada rota/serviço**.
@@ -117,10 +102,16 @@ Durante a importação, cada linha do arquivo é processada dentro de uma **tran
 
 Este processo garante que os dados financeiros importados sejam atualizados corretamente, facilitando o gerenciamento dos investimentos por cliente.
 
+#### 📡 Comunicação Reativa com SSE (Server-Sent Events)
+- Para melhorar a experiência do usuário, foi implementado um canal de comunicação com o frontend usando SSE (Server-Sent Events):
+- Assim que o processamento do arquivo é finalizado no backend, um evento SSE é disparado.
+- Este evento notifica o frontend em tempo real, que então pode reconsultar a API para exibir os dados atualizados, sem a necessidade de polling ou refresh manual.
+- Isso torna o fluxo mais fluido e moderno, proporcionando feedback instantâneo para o usuário e mantendo a interface sempre sincronizada com os dados reais.
+
 <hr/>
 
 🚀 Projeto desenvolvido com dedicação e 🧡.
 
 ✨ Com esperança de, em breve, poder contribuir profissionalmente com o time da [Anka](https://ankatech.com.br).
 
-📬 Entre em contato: guirramatheus1@gmail.com | https://www.linkedin.com/in/matheus-guirra/ | 61992839756
+📬 Entre em contato: guirramatheus1@gmail.com | <a href="https://www.linkedin.com/in/matheus-guirra/">Linkedin</a> | +55 (61) 99283-9756
