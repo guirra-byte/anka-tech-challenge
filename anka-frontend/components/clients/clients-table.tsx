@@ -43,7 +43,7 @@ import ClientAssetList from "./client-asset-list";
 import { format } from "date-fns";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
-import { SSEProvider, useSSE } from "@/hooks/use-sse";
+import { useSSE } from "@/hooks/use-sse";
 
 export type Client = {
   id: string;
