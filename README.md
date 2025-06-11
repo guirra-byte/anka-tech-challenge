@@ -102,7 +102,7 @@ Durante a importação, cada linha do arquivo é processada dentro de uma **tran
 
 Este processo garante que os dados financeiros importados sejam atualizados corretamente, facilitando o gerenciamento dos investimentos por cliente.
 
-#### 📡 Comunicação Reativa com SSE (Server-Sent Events)
+#### 📡 Comunicação Assíncrona orientada à eventos com SSE (Server-Sent Events)
 - Para melhorar a experiência do usuário, foi implementado um canal de comunicação com o frontend usando SSE (Server-Sent Events):
 - Assim que o processamento do arquivo é finalizado no backend, um evento SSE é disparado.
 - Este evento notifica o frontend em tempo real, que então pode reconsultar a API para exibir os dados atualizados, sem a necessidade de polling ou refresh manual.
