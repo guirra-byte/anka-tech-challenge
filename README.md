@@ -60,6 +60,8 @@ Apesar da sugestão inicial de usar React Query, optei por centralizar as requis
 
 ### 📌 Cache no Backend — Cache-Aside Strategy
 
+![image](https://github.com/user-attachments/assets/075b5af5-d23a-4932-bc75-e87d6a8f9f05)
+
 Para garantir performance e escalabilidade, esta aplicação adota a estratégia Cache-Aside, uma técnica eficiente onde o cache e a fonte de verdade (banco de dados) são desacoplados, mas sincronizados de forma inteligente.
 
 - **Middleware e preHandler** interceptam as requisições antes da execução da lógica principal.
