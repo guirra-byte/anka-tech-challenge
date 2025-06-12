@@ -68,7 +68,7 @@ Para garantir performance e escalabilidade, esta aplicação adota a estratégia
 - Caso não exista cache, a requisição segue normalmente e, ao final, a resposta é armazenada para reutilizações futuras.
 
 #### 🧼 Invalidação Automática:
-Sempre que o servidor executa **operações stateful** — como criação e edição (nesse contexto), o cache relacionado à entidade modificada é **invalidado** e automaticamente **atualizado** após a nova resposta.
+Sempre que o servidor executa **operações** como criação e edição (nesse contexto), o cache relacionado à entidade modificada é **invalidado** e automaticamente **atualizado** após a nova resposta.
 > Isso garante que o cache nunca entregue dados desatualizados após mutações.
 
 #### 🤝 Integração com o Frontend
